@@ -1,0 +1,98 @@
+package fr.o80.release
+
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.streams.asSequence
+
+val VALID_TYPES = arrayOf("feature", "fix")
+
+class ChangelogGenerator {
+
+    private val splitHeaderRegex = "^([a-z-]+)\\s*:\\s*(.+)$".toRegex()
+
+    fun generate(workingDirectory: String, versionName: String): String {
+        val changelogHeader = """
+                               |# Changelog
+                               |
+                               |## $versionName
+                               |
+                               |""".trimMargin()
+
+        return getChangesFiles(workingDirectory, versionName)
+            .map(this::parseFile)
+            .mapNotNull(this::toChange)
+            .groupBy { it.type }
+            .toSortedMap()
+            .mapValues { (_, changes) -> changes.map(Change::toMarkdown) }
+            .map { (type, markdowns) -> toMarkdownOfType(type, markdowns) }
+            .joinToString("\n\n", prefix = changelogHeader)
+    }
+
+    private fun toMarkdownOfType(type: String, markdowns: List<String>): String =
+        StringBuilder()
+            .append("### ")
+            .append(type.capitalize())
+            .append("\n\n")
+            .append(markdowns.joinToString("\n"))
+            .toString()
+
+    private fun toChange(parsedFile: ParsedFile): Change? {
+        val id = parsedFile.fileName
+        val title = parsedFile.title.takeUnless { it.isBlank() } ?: return null
+        val message = parsedFile.message.takeIf { it.isNotBlank() }
+        val type =
+            parsedFile.headers["type"].takeUnless { it.isNullOrBlank() }?.takeIf { it.isValidType() } ?: return null
+        val link = parsedFile.headers["link"]
+
+        return Change(id, title, message, type, link)
+    }
+
+    private fun parseFile(path: Path): ParsedFile {
+        val file = path.toFile()
+        val content = file.readLines()
+        val fileName = file.nameWithoutExtension
+
+        return if (content.firstOrNull() == "---") {
+            val headers = content.drop(1).readHeader()
+            val (title, message) = content.drop(headers.size + 2).readContent()
+            ParsedFile(fileName, title, message, headers)
+        } else {
+            val (title, message) = content.readContent()
+            ParsedFile(fileName, title, message)
+        }
+    }
+
+    private fun List<String>.readHeader(): Map<String, String> {
+        return this.takeWhile { line -> line != "---" }
+            .mapNotNull { line ->
+                val matching = splitHeaderRegex.matchEntire(line)
+                if (matching == null) {
+                    null
+                } else {
+                    val key = matching.groupValues[1]
+                    val value = matching.groupValues[2]
+                    key to value
+                }
+            }
+            .toMap()
+    }
+
+    private fun List<String>.readContent(): Pair<String, String> {
+        val title = this[0]
+        val message = this.dropWhile { it.isBlank() }.joinToString(System.lineSeparator())
+
+        return title to message
+    }
+
+    private fun getChangesFiles(workingDirectory: String, versionName: String): Sequence<Path> {
+        val workingPath = Path.of(workingDirectory, versionName)
+        return Files.list(workingPath)
+            .filter { path -> Files.isRegularFile(path) && Files.isReadable(path) }
+            .asSequence()
+    }
+
+}
+
+private fun String.isValidType(): Boolean {
+    return this in VALID_TYPES
+}
