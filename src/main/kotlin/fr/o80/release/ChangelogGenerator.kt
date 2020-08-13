@@ -1,5 +1,7 @@
 package fr.o80.release
 
+import fr.o80.release.parser.ParsedFile
+import fr.o80.release.parser.md.MarkdownParser
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
@@ -19,8 +21,6 @@ val VALID_TYPES = arrayOf("feature", "fix")
 // TODO TDD ?
 class ChangelogGenerator {
 
-    private val splitHeaderRegex = "^([a-z-]+)\\s*:\\s*(.+)$".toRegex()
-
     fun generate(workingDirectory: String, versionName: String): String {
         val changelogHeader = """
                                |# Changelog
@@ -29,7 +29,6 @@ class ChangelogGenerator {
                                |
                                |""".trimMargin()
 
-        // TODO Sortir l'algo de parsing du fichier dans une autre classe, qui reçoit des File et qui donne des Change
         return getChangesFiles(workingDirectory, versionName)
             .map(this::parseFile)
             .mapNotNull(this::toChange)
@@ -60,43 +59,9 @@ class ChangelogGenerator {
     }
 
     private fun parseFile(path: Path): ParsedFile {
+        val markdownParser = MarkdownParser()
         val file = path.toFile()
-        val content = file.readLines()
-        val fileName = file.nameWithoutExtension
-
-        // TODO Découper le fichier de façon séquencielle, peut-être avec un genre de builder, ou avec une API fluent
-        // idée : MonObject(inputStream).readHeaders().readTitle().readMessage().toParsedFile()
-        return if (content.firstOrNull() == "---") {
-            val headers = content.drop(1).readHeaders()
-            // FIXME Si un des header est mal formatté le "headers.size" est complètement faux
-            val (title, message) = content.drop(headers.size + 2).readContent()
-            ParsedFile(fileName, title, message, headers)
-        } else {
-            val (title, message) = content.readContent()
-            ParsedFile(fileName, title, message)
-        }
-    }
-
-    private fun List<String>.readHeaders(): Map<String, String> {
-        return this.takeWhile { line -> line != "---" }
-            .mapNotNull { line ->
-                val matching = splitHeaderRegex.matchEntire(line)
-                if (matching == null) {
-                    null
-                } else {
-                    val key = matching.groupValues[1]
-                    val value = matching.groupValues[2]
-                    key to value
-                }
-            }
-            .toMap()
-    }
-
-    private fun List<String>.readContent(): Pair<String, String> {
-        val title = this[0]
-        val message = this.dropWhile { it.isBlank() }.joinToString(System.lineSeparator())
-
-        return title to message
+        return markdownParser.parse(file)
     }
 
     private fun getChangesFiles(workingDirectory: String, versionName: String): Sequence<Path> {
