@@ -2,6 +2,7 @@ package fr.o80.release
 
 import fr.o80.release.parser.ParsedFile
 import fr.o80.release.parser.md.MarkdownParser
+import fr.o80.release.render.md.MarkdownRenderer
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.asSequence
@@ -22,30 +23,16 @@ val VALID_TYPES = arrayOf("feature", "fix")
 class ChangelogGenerator {
 
     fun generate(workingDirectory: String, versionName: String): String {
-        val changelogHeader = """
-                               |# Changelog
-                               |
-                               |## $versionName
-                               |
-                               |""".trimMargin()
+
+        val markdownRenderer = MarkdownRenderer()
 
         return getChangesFiles(workingDirectory, versionName)
             .map(this::parseFile)
             .mapNotNull(this::toChange)
             .groupBy { it.type }
             .toSortedMap()
-            .mapValues { (_, changes) -> changes.map(Change::toMarkdown) }
-            .map { (type, markdowns) -> toMarkdownOfType(type, markdowns) }
-            .joinToString("\n\n", prefix = changelogHeader)
+            .let { markdownRenderer.render(versionName, it) }
     }
-
-    private fun toMarkdownOfType(type: String, markdowns: List<String>): String =
-        StringBuilder()
-            .append("### ")
-            .append(type.capitalize())
-            .append("\n\n")
-            .append(markdowns.joinToString("\n"))
-            .toString()
 
     private fun toChange(parsedFile: ParsedFile): Change? {
         val id = parsedFile.fileName

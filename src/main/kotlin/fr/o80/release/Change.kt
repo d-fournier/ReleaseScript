@@ -6,9 +6,4 @@ data class Change(
     val message: String?,
     val type: String,
     val link: String?
-) {
-    fun toMarkdown(): String {
-        val formattedId = if (link != null) "[[$id]]($link)" else "[$id]"
-        return "$formattedId $title"
-    }
-}
+)
