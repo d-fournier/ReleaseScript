@@ -4,5 +4,3 @@ fun main() {
     val output = ChangelogGenerator().generate(".changes/", "1")
     println(output)
 }
-
-

@@ -31,4 +31,3 @@ private fun Change.toMarkdown(): String {
     val formattedId = if (link != null) "[[$id]]($link)" else "[$id]"
     return "$formattedId $title"
 }
-
