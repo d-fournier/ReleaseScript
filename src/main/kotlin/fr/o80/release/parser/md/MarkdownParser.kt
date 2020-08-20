@@ -7,6 +7,9 @@ import java.io.File
 
 class MarkdownParser : Parser {
     override fun parse(file: File): ParsedFile {
+        // TODO Plutôt que d'avoir un Builder, on peut stocker dans des variables temporaires
+        //      et faire un return ParsedFile(var1, var2, etc.)
+        //      l'idée est de favoriser les erreurs au compile-time plutôt qu'au runtime
         val parsedFileBuilder = ParsedFileBuilder()
         parsedFileBuilder.fileName = file.nameWithoutExtension
 

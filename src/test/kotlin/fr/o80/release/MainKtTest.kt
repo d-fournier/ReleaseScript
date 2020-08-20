@@ -21,6 +21,8 @@ val expectedOutputV2 = """|# Changelog
                                  |
                                  |""".trimMargin()
 
+// TODO Utiliser des tests paramétrés de JUnit5
+// TODO Lancer le CoCo
 internal class MainKtTest {
 
     @Test

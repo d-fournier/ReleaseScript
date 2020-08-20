@@ -8,6 +8,7 @@ class MarkdownReader(inputStream: InputStream) {
 
     private val splitHeaderRegex = "^([a-z-]+)\\s*:\\s*(.+)$".toRegex()
 
+    // TODO Voir le Reader comme une séquence avec des méthodes .map .take .filter
     private val streamReader = inputStream.bufferedReader()
 
     fun readHeaders(block: (Map<String, String>) -> Unit): MarkdownReader {
@@ -18,7 +19,7 @@ class MarkdownReader(inputStream: InputStream) {
         var line = streamReader.readLine()
         while (line != HEADERS_SEPARATOR) {
 
-            val (key, value) = line.splitHeader()
+            val (key, value) = parseHeader(line)
             headers[key] = value
             line = streamReader.readLine()
         }
@@ -28,6 +29,7 @@ class MarkdownReader(inputStream: InputStream) {
         return this
     }
 
+    // TODO readLine peut renvoyer un null (ce crash peut arriver à d'autres endroits du fichier)
     fun readLine(block: (String) -> Unit): MarkdownReader {
         block(streamReader.readLine())
         return this
@@ -44,8 +46,8 @@ class MarkdownReader(inputStream: InputStream) {
         return this
     }
 
-    private fun String.splitHeader(): Pair<String, String> {
-        val matching = splitHeaderRegex.matchEntire(this)
+    private fun parseHeader(line: String): Pair<String, String> {
+        val matching = splitHeaderRegex.matchEntire(line)
             ?: throw IllegalArgumentException("A line is malformed! => $this")
 
         val key = matching.groupValues[1]

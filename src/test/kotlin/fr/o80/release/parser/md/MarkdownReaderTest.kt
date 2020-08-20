@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.File
 
+// TODO Revoir TOUS ces tests là pour s'assurer qu'on a bien testé tous les les recoins de l'algo
 internal class MarkdownReaderTest {
 
     @Test
