@@ -10,7 +10,7 @@ val expectedOutputV1 = """|# Changelog
                                  |### Feature
                                  |
                                  |[[15423]](http://example.org/user-story-15423) Implement the system to do something that is really important
-                                 |[9875] ---
+                                 |[9875] Another feature
                                  |
                                  |### Fix
                                  |
