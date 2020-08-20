@@ -1,4 +1,4 @@
-package fr.o80.release
+package fr.o80.release.parser
 
 data class ParsedFile(
     val fileName: String,
