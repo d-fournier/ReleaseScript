@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.File
 
-// TODO Revoir TOUS ces tests là pour s'assurer qu'on a bien testé tous les les recoins de l'algo
+// TODO Revoir TOUS ces tests là pour s'assurer qu'on a bien testé tous les recoins de l'algo
 internal class MarkdownReaderTest {
 
     @Test
@@ -14,14 +14,14 @@ internal class MarkdownReaderTest {
         val inputStream = File(".changes_test/1/15423.md").inputStream()
         val reader = MarkdownReader(inputStream)
 
-        // Act / Assert
-        reader
-            .readHeaders {
-                assertThat(it).containsExactly(
-                    "type", "feature",
-                    "link", "http://example.org/user-story-15423"
-                )
-            }
+        // Act
+        val headers = reader.readHeaders()
+
+        // Assert
+        assertThat(headers).containsExactly(
+            "type", "feature",
+            "link", "http://example.org/user-story-15423"
+        )
     }
 
     @Test
@@ -31,9 +31,12 @@ internal class MarkdownReaderTest {
         val reader = MarkdownReader(inputStream)
 
         // Act / Assert
-        reader
-            .readLine { line -> assertThat(line).isEqualTo("---") }
-            .readLine { line -> assertThat(line).isEqualTo("type: feature") }
+        val output1 = reader.readLine()
+        val output2 = reader.readLine()
+
+        // Assert
+        assertThat(output1).isEqualTo("---")
+        assertThat(output2).isEqualTo("type: feature")
     }
 
     @Test
@@ -41,11 +44,13 @@ internal class MarkdownReaderTest {
         // Arrange
         val inputStream = File(".changes_test/1/15423.md").inputStream()
         val reader = MarkdownReader(inputStream)
+        reader.readHeaders()
 
         // Act / Assert
-        reader
-            .readHeaders { /* noop */ }
-            .readLine { line -> assertThat(line).isEqualTo("Implement the system to do something that is really important") }
+        val output = reader.readLine()
+
+        // Assert
+        assertThat(output).isEqualTo("Implement the system to do something that is really important")
     }
 
     @Test
@@ -53,6 +58,7 @@ internal class MarkdownReaderTest {
         // Arrange
         val inputStream = File(".changes_test/1/15423.md").inputStream()
         val reader = MarkdownReader(inputStream)
+        reader.readHeaders()
         val expected = """
                         Implement the system to do something that is really important
                         
@@ -62,10 +68,11 @@ internal class MarkdownReaderTest {
                         - the rest
                        """.trimIndent()
 
-        // Act / Assert
-        reader
-            .readHeaders { /* noop */ }
-            .readRemaining { line -> assertThat(line).isEqualTo(expected) }
+        // Act
+        val output = reader.readRemaining()
+
+        // Assert
+        assertThat(output).isEqualTo(expected)
     }
 
     @Test
@@ -76,7 +83,7 @@ internal class MarkdownReaderTest {
 
         // Act / Assert
         assertThrows<IllegalArgumentException> {
-            reader.readHeaders { }
+            reader.readHeaders()
         }
     }
 }

@@ -6,9 +6,6 @@ import fr.o80.release.parser.md.MarkdownParser
 import fr.o80.release.render.Renderer
 import fr.o80.release.render.md.MarkdownRenderer
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
-import kotlin.streams.asSequence
 
 val VALID_TYPES = arrayOf("feature", "fix")
 
