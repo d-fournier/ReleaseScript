@@ -1,7 +1,7 @@
-package fr.o80.release.render
+package fr.o80.release.formatter
 
 import fr.o80.release.Change
 
-interface Renderer {
+interface Formatter {
     fun render(versionName: String, changesByType: Map<String, List<Change>>): String
 }

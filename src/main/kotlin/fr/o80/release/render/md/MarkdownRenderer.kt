@@ -1,33 +1,35 @@
 package fr.o80.release.render.md
 
-import fr.o80.release.Change
-import fr.o80.release.render.Renderer
+import fr.o80.release.render.TextRenderer
 
-class MarkdownRenderer: Renderer {
-    override fun render(versionName: String, changesByType: Map<String, List<Change>>): String {
-        val changelogHeader = """
-                               |# Changelog
-                               |
-                               |## $versionName
-                               |
-                               |""".trimMargin()
+class MarkdownRenderer : TextRenderer {
+    private val builder = StringBuilder()
 
-        return changesByType
-            .mapValues { (_, changes) -> changes.map { it.toMarkdown() }  }
-            .map { (type, markdowns) -> toMarkdownOfType(type, markdowns) }
-            .joinToString("\n\n", prefix = changelogHeader)
+    override fun header1(line: String): TextRenderer {
+        builder.appendln(HEADER_1.format(line))
+        return this
     }
 
-    private fun toMarkdownOfType(type: String, markdowns: List<String>): String =
-        StringBuilder()
-            .append("### ")
-            .append(type.capitalize())
-            .append("\n\n")
-            .append(markdowns.joinToString("\n"))
-            .toString()
+    override fun header2(line: String): TextRenderer {
+        builder.appendln(HEADER_2.format(line))
+        return this
+    }
+
+    override fun header3(line: String): TextRenderer {
+        builder.appendln(HEADER_3.format(line))
+        return this
+    }
+
+    override fun line(line: String): TextRenderer {
+        builder.appendln(line)
+        return this
+    }
+
+    override fun toString(): String {
+        return builder.toString()
+    }
 }
 
-private fun Change.toMarkdown(): String {
-    val formattedId = if (link != null) "[[$id]]($link)" else "[$id]"
-    return "$formattedId $title"
-}
+private const val HEADER_1 = "# %s"
+private const val HEADER_2 = "## %s"
+private const val HEADER_3 = "### %s"

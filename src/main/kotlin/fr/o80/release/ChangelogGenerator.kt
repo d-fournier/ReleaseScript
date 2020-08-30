@@ -1,13 +1,11 @@
 package fr.o80.release
 
-import fr.o80.release.parser.ParsedFile
+import fr.o80.release.formatter.Formatter
+import fr.o80.release.formatter.TextFormatter
 import fr.o80.release.parser.Parser
 import fr.o80.release.parser.md.MarkdownParser
-import fr.o80.release.render.Renderer
 import fr.o80.release.render.md.MarkdownRenderer
 import java.io.File
-
-val VALID_TYPES = arrayOf("feature", "fix")
 
 // TODO Extraire la partie génération de markdown, avec des méthodes du genre header1, header 2, header 3 et addChange
 // TODO Et aussi une couche qui s'occupe de la génération pure du markdown
@@ -21,28 +19,22 @@ val VALID_TYPES = arrayOf("feature", "fix")
 // TODO TDD ?
 class ChangelogGenerator {
 
-    fun generate(workingDirectory: String, versionName: String): String {
+    fun generate(workingDirectory: String, vararg versions: String): String {
 
         val markdownParser: Parser = MarkdownParser()
-        val markdownRenderer: Renderer = MarkdownRenderer()
+        val renderer = MarkdownRenderer()
+        val formatter: Formatter = TextFormatter(renderer)
 
-        return getChangesFiles(workingDirectory, versionName)
-            .map(markdownParser::parse)
-            .mapNotNull(this::toChange)
-            .groupBy { it.type }
-            .toSortedMap()
-            .let { markdownRenderer.render(versionName, it) }
-    }
-
-    private fun toChange(parsedFile: ParsedFile): Change? {
-        val id = parsedFile.fileName
-        val title = parsedFile.title.takeUnless { it.isBlank() } ?: return null
-        val message = parsedFile.message.takeIf { it.isNotBlank() }
-        val type =
-            parsedFile.headers["type"].takeUnless { it.isNullOrBlank() }?.takeIf { it.isValidType() } ?: return null
-        val link = parsedFile.headers["link"]
-
-        return Change(id, title, message, type, link)
+        versions.forEach { version ->
+            getChangesFiles(workingDirectory, version)
+                .map(markdownParser::parse)
+                .let {
+                    Converter(VALID_TYPES)
+                        .convert(it)
+                }
+                .let { formatter.render(version, it) }
+        }
+        return renderer.toString()
     }
 
     private fun getChangesFiles(workingDirectory: String, versionName: String): List<File> {
@@ -56,6 +48,4 @@ class ChangelogGenerator {
     }
 }
 
-private fun String.isValidType(): Boolean {
-    return this in VALID_TYPES
-}
+private val VALID_TYPES = listOf("feature", "fix")
