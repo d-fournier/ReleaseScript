@@ -1,6 +1,8 @@
 package fr.o80.release.parser.md
 
 import com.google.common.truth.Truth.assertThat
+import fr.o80.release.Helpers
+import fr.o80.release.Helpers.getFile
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.File
@@ -11,7 +13,7 @@ internal class MarkdownReaderTest {
     @Test
     fun `Should read all headers`() {
         // Arrange
-        val inputStream = File(".changes_test/1/15423.md").inputStream()
+        val inputStream = getFile(".changes_test/1/15423.md").inputStream()
         val reader = MarkdownReader(inputStream)
 
         // Act
@@ -27,7 +29,7 @@ internal class MarkdownReaderTest {
     @Test
     fun `Should read 2 lines`() {
         // Arrange
-        val inputStream = File(".changes_test/1/15423.md").inputStream()
+        val inputStream = getFile(".changes_test/1/15423.md").inputStream()
         val reader = MarkdownReader(inputStream)
 
         // Act / Assert
@@ -42,7 +44,7 @@ internal class MarkdownReaderTest {
     @Test
     fun `Should read headers then next line`() {
         // Arrange
-        val inputStream = File(".changes_test/1/15423.md").inputStream()
+        val inputStream = getFile(".changes_test/1/15423.md").inputStream()
         val reader = MarkdownReader(inputStream)
         reader.readHeaders()
 
@@ -56,7 +58,7 @@ internal class MarkdownReaderTest {
     @Test
     fun `Should read headers then the remaining lines`() {
         // Arrange
-        val inputStream = File(".changes_test/1/15423.md").inputStream()
+        val inputStream = getFile(".changes_test/1/15423.md").inputStream()
         val reader = MarkdownReader(inputStream)
         reader.readHeaders()
         val expected = """
@@ -78,7 +80,7 @@ internal class MarkdownReaderTest {
     @Test
     fun `Should fail to read invalid headers block`() {
         // Arrange
-        val inputStream = File(".changes_test/1/1645.md").inputStream()
+        val inputStream = getFile(".changes_test/1/1645.md").inputStream()
         val reader = MarkdownReader(inputStream)
 
         // Act / Assert

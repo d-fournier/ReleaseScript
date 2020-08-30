@@ -1,5 +1,6 @@
 package fr.o80.release
 
+import fr.o80.release.Helpers.getFolderPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -44,19 +45,19 @@ internal class MainKtTest {
 
     @Test
     fun goldenMasterTestV1() {
-        val outputV1 = ChangelogGenerator().generate(".changes/", "1")
+        val outputV1 = ChangelogGenerator().generate(getFolderPath(".changes"), "1")
         assertEquals(expectedOutputV1, outputV1)
     }
 
     @Test
     fun goldenMasterTestV2() {
-        val outputV2 = ChangelogGenerator().generate(".changes/", "2")
+        val outputV2 = ChangelogGenerator().generate(getFolderPath(".changes"), "2")
         assertEquals(expectedOutputV2, outputV2)
     }
 
     @Test
     fun goldenMasterTestAll() {
-        val outputV1 = ChangelogGenerator().generate(".changes/", "2", "1")
+        val outputV1 = ChangelogGenerator().generate(getFolderPath(".changes"), "2", "1")
         assertEquals(expectedOutputAll, outputV1)
     }
 }

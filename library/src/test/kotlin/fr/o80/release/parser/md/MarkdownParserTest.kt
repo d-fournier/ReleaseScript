@@ -1,6 +1,7 @@
 package fr.o80.release.parser.md
 
 import com.google.common.truth.Truth.assertThat
+import fr.o80.release.Helpers.getFile
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -15,7 +16,7 @@ internal class MarkdownParserTest {
     @DisplayName("Parse a file with headers and title only")
     fun `Should parse a file with headers and title only`() {
         // Arrange
-        val inputFile = File(".changes_test/1/1000.md")
+        val inputFile = getFile(".changes_test/1/1000.md")
 
         // Act
         val output = markdownParser.parse(inputFile)
@@ -33,7 +34,7 @@ internal class MarkdownParserTest {
     @DisplayName("Parse a file with empty headers and title")
     fun `Should parse a file with empty headers and title`() {
         // Arrange
-        val inputFile = File(".changes_test/1/1500.md")
+        val inputFile = getFile(".changes_test/1/1500.md")
 
         // Act
         val output = markdownParser.parse(inputFile)
@@ -49,7 +50,7 @@ internal class MarkdownParserTest {
     @DisplayName("Parse a file without headers and with title")
     fun `Should parse a file without headers and with title`() {
         // Arrange
-        val inputFile = File(".changes_test/1/1520.md")
+        val inputFile = getFile(".changes_test/1/1520.md")
 
         // Act / Assert
         assertThrows<IllegalArgumentException> { markdownParser.parse(inputFile) }
@@ -59,7 +60,7 @@ internal class MarkdownParserTest {
     @DisplayName("Parse a file with an invalid header")
     fun `Should parse a file with an invalid header`() {
         // Arrange
-        val inputFile = File(".changes_test/1/1530.md")
+        val inputFile = getFile(".changes_test/1/1530.md")
 
         // Act
         assertThrows<IllegalArgumentException> { markdownParser.parse(inputFile) }
@@ -69,7 +70,7 @@ internal class MarkdownParserTest {
     @DisplayName("Fail to parse a file with an empty line in headers")
     fun `Should fail to parse a file with an empty line in headers`() {
         // Arrange
-        val inputFile = File(".changes_test/1/1594.md")
+        val inputFile = getFile(".changes_test/1/1594.md")
 
         // Act
         assertThrows<IllegalArgumentException> { markdownParser.parse(inputFile) }
