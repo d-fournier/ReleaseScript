@@ -1,0 +1,4 @@
+---
+type: feature
+---
+Initialize project

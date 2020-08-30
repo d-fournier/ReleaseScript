@@ -1,16 +1,22 @@
 package fr.o80.release.formatter
 
 import fr.o80.release.Change
+import fr.o80.release.ChangelogConfiguration
 import fr.o80.release.render.TextRenderer
 
 class TextFormatter(
-    private val rendererProvider: TextRenderer
+    private val rendererProvider: TextRenderer,
+    private val configuration: ChangelogConfiguration
 ): Formatter {
+    private var hasContent = false
+
     init {
-        rendererProvider.header1("Changelog")
+        rendererProvider.header1(TITLE)
     }
 
-    override fun render(versionName: String, changesByType: Map<String, List<Change>>): String {
+    override fun process(versionName: String, changesByType: Map<String, List<Change>>) {
+        hasContent = true
+
         rendererProvider
             .line()
             .header2(versionName)
@@ -27,11 +33,20 @@ class TextFormatter(
                         }
                     }
             }
-        return rendererProvider.toString()
     }
-}
 
-private fun Change.format(): String {
-    val formattedId = if (link != null) "[[$id]]($link)" else "[$id]"
-    return "$formattedId $title"
+    private fun Change.format(): String {
+        return if (configuration.ignoreSlug) {
+            title
+        } else {
+            val formattedId = if (link != null) ID_WITH_LINK.format(id, link) else ID.format(id)
+            "$formattedId $title"
+        }
+    }
+
+    companion object {
+        private const val TITLE = "Changelog"
+        private const val ID_WITH_LINK = "[[%s]](%s)"
+        private const val ID = "[%s]"
+    }
 }

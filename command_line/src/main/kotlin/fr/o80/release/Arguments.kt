@@ -8,11 +8,17 @@ class Arguments(parser: ArgParser) {
         "-f", "--folder",
         help = "Folder with the revision"
     )
-        .default(".change")
+        .default(".changes")
 
-    val versions by parser.positionalList("VERSION",
+    val versions by parser.positionalList(
+        "VERSION",
         sizeRange = 1..Int.MAX_VALUE,
-        help = "..."
+        help = "Versions used for changelog generation"
     )
         .default(emptyList())
+
+    val ignoreSlug by parser.flagging(
+        "-i", "--ignore-slug",
+        help = "Ignore the changes slug (Filename)"
+    )
 }

@@ -1,10 +1,13 @@
 package fr.o80.release.parser.md
 
+import fr.o80.release.ChangelogConfiguration
 import fr.o80.release.parser.ParsedFile
 import fr.o80.release.parser.Parser
 import java.io.File
 
-class MarkdownParser : Parser {
+class MarkdownParser(
+    private val configuration: ChangelogConfiguration
+) : Parser {
     override fun parse(file: File): ParsedFile {
         val fileName: String = file.nameWithoutExtension
 

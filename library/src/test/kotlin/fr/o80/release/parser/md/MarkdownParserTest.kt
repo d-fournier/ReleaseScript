@@ -1,16 +1,16 @@
 package fr.o80.release.parser.md
 
 import com.google.common.truth.Truth.assertThat
+import fr.o80.release.Helpers
 import fr.o80.release.Helpers.getFile
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.io.File
 
 
 internal class MarkdownParserTest {
 
-    private val markdownParser = MarkdownParser()
+    private val markdownParser = MarkdownParser(Helpers.configuration)
 
     @Test
     @DisplayName("Parse a file with headers and title only")
